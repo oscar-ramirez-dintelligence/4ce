@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Cotizaciones{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Mis Cotizaciones</h1>
+    <a href="{{ url_for('cotizaciones.new_page') }}" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill me-2" viewBox="0 0 16 16">
+          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+        </svg>
+        Crear Nueva Cotización
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Título de la Cotización</th>
+                        <th scope="col">Anunciante</th>
+                        <th scope="col">Agencia</th>
+                        <th scope="col">Ejecutivo</th>
+                        <th scope="col">Periodo</th>
+                        <th scope="col" class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cotizacion in cotizaciones %}
+                    <tr>
+                        <td class="fw-medium">{{ cotizacion.titulo }}</td>
+                        <td>{{ cotizacion.anunciante }}</td>
+                        <td>{{ cotizacion.agencia or 'N/A' }}</td>
+                        <td>{{ cotizacion.ejecutivo }}</td>
+                        <td>{{ cotizacion.periodo_inicio }} al {{ cotizacion.periodo_fin }}</td>
+                        <td class="text-center">
+                            <a href="#" class="btn btn-sm btn-outline-secondary disabled">Ver</a>
+                            <a href="#" class="btn btn-sm btn-outline-danger disabled ms-1">Eliminar</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            No se han creado cotizaciones todavía. <a href="{{ url_for('cotizaciones.new_page') }}">¡Crea la primera!</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

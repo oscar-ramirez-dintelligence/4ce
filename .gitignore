@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-selfcheck.json
+
+# Environment variables
+.env
+instance/
+
+# IDE
+.idea/
+.vscode/
+
+# Google Cloud
+service-account-key.json

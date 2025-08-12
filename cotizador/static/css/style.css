@@ -1,0 +1,26 @@
+/* Custom styles for the CotizadorPro App */
+
+body {
+    /* A slightly off-white background for a softer look */
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    /* Add a subtle bottom margin to the navbar */
+    margin-bottom: 1.5rem;
+}
+
+/* Improve card appearance */
+.card {
+    border: 1px solid #e9ecef;
+}
+
+/* Style for the map container to ensure it fits well */
+#map-container {
+    border: 1px solid #dee2e6;
+}
+
+/* Add some visual feedback on table row hover */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}

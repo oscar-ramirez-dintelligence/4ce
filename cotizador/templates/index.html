@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+  <div class="p-5 mb-4 bg-light rounded-3 shadow-sm">
+    <div class="container-fluid py-5">
+      <h1 class="display-4 fw-bold">Cotizador de Medios Pro</h1>
+      <p class="col-md-9 fs-4">La plataforma centralizada para la gestión de soportes publicitarios y la creación de cotizaciones. Simplifique su flujo de trabajo y maximice su eficiencia.</p>
+      <hr class="my-4">
+      <p>Comience por explorar el catálogo de medios disponibles o cree una nueva cotización para un cliente.</p>
+      <a href="{{ url_for('soportes.catalogue') }}" class="btn btn-primary btn-lg" role="button">
+        Ver Catálogo de Soportes
+      </a>
+      <a href="{{ url_for('cotizaciones.new_page') }}" class="btn btn-success btn-lg" role="button">
+        Crear Nueva Cotización
+      </a>
+    </div>
+  </div>
+
+  <div class="row align-items-md-stretch">
+      <div class="col-md-6">
+        <div class="h-100 p-5 text-white bg-dark rounded-3">
+          <h2>Gestión de Soportes</h2>
+          <p>Administre fácilmente todos sus soportes publicitarios, incluyendo unipolares, vallas, muros y pantallas digitales. Actualice precios, ubicaciones y disponibilidad en un solo lugar.</p>
+          <button class="btn btn-outline-light" type="button" onclick="location.href='{{ url_for('soportes.catalogue') }}'">Administrar Soportes</button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="h-100 p-5 bg-body-secondary border rounded-3">
+          <h2>Generación de Cotizaciones</h2>
+          <p>Cree cotizaciones profesionales en minutos. Seleccione el cliente, los soportes deseados, ajuste los periodos y genere un documento listo para enviar.</p>
+          <button class="btn btn-outline-secondary" type="button" onclick="location.href='{{ url_for('cotizaciones.list_page') }}'">Ver Cotizaciones</button>
+        </div>
+      </div>
+    </div>
+{% endblock %}

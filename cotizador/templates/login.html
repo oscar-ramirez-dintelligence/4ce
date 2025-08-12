@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="card-title text-center mb-4">Iniciar Sesión</h2>
+                <p class="text-center text-muted">
+                    Esta es una demostración del sistema de sesiones.
+                    Introduce cualquier nombre de usuario para continuar.
+                </p>
+                <form method="post" action="{{ url_for('main.login') }}" novalidate>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Nombre de Usuario</label>
+                        <input type="text" class="form-control" id="username" name="username" required autofocus>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary">Entrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
