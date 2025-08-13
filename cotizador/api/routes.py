@@ -2,16 +2,12 @@ from flask import request, jsonify
 from . import bp
 from cotizador.services import soporte_service, cotizacion_service, tipos_cliente_service
 
-# Note: All routes in this file are prefixed with /api as defined in create_app
-
-# --- Tipos Cliente API ---
 @bp.route('/tipos_cliente', methods=['GET'])
 def get_tipos_cliente():
     """Returns a list of all client types."""
     tipos = tipos_cliente_service.get_all_tipos_cliente()
     return jsonify(tipos)
 
-# --- Soportes API ---
 @bp.route('/soportes', methods=['GET'])
 def get_soportes():
     """Returns a paginated list of advertising supports."""
@@ -57,7 +53,6 @@ def delete_soporte(soporte_id):
         return '', 204
     return jsonify({"error": "Soporte not found or delete failed"}), 404
 
-# --- Cotizaciones API ---
 @bp.route('/cotizaciones', methods=['GET'])
 def get_cotizaciones():
     """Returns a list of all quotations."""

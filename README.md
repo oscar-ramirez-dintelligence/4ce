@@ -4,10 +4,7 @@ Una aplicación web construida con Flask y Google Cloud Firestore para gestionar
 
 ## Autenticación con Google Cloud
 
-Esta aplicación utiliza **Application Default Credentials (ADC)** para autenticarse con los servicios de Google Cloud (Firestore). Esto significa que **no es necesario** gestionar archivos de clave de cuenta de servicio (`.json`) manualmente. La autenticación se maneja automáticamente según el entorno:
-
--   **En Desarrollo Local**: La aplicación usará las credenciales de tu usuario de `gcloud`.
--   **En Cloud Run**: La aplicación usará la cuenta de servicio asociada a la instancia de Cloud Run.
+Esta aplicación utiliza **Application Default Credentials (ADC)** para autenticarse con los servicios de Google Cloud (Firestore). Esto significa que **no es necesario** gestionar archivos de clave de cuenta de servicio (`.json`) manualmente. La autenticación se maneja automáticamente según el entorno.
 
 ---
 
@@ -54,12 +51,18 @@ Esta aplicación utiliza **Application Default Credentials (ADC)** para autentic
 
 5.  **Configurar Variables de Entorno**:
     -   Crea una copia de `.env.example` y renómbrala a `.env`.
-    -   Rellena las variables:
+    -   Rellena las variables con tus propias claves y configuraciones:
         ```ini
+        # --- Flask Configuration ---
+        FLASK_APP=run.py
+        FLASK_ENV=development
+
+        # --- Application Configuration ---
         # Genera una clave segura con: python -c 'import secrets; print(secrets.token_hex(24))'
         SECRET_KEY="tu_clave_secreta_aqui"
 
-        # La clave de API de Google Maps que creaste.
+        # --- Google Cloud Configuration ---
+        GOOGLE_CLOUD_PROJECT="tu-gcp-project-id-aqui"
         GOOGLE_MAPS_API_KEY="tu_google_maps_api_key_aqui"
         ```
 
@@ -73,13 +76,14 @@ python seed_data.py
 ### 5. Ejecutar la Aplicación
 
 **A. Modo de Desarrollo:**
+Gracias a las variables `FLASK_APP` y `FLASK_ENV` en el archivo `.env`, puedes iniciar la aplicación simplemente con:
 ```bash
-flask --app run.py run
+flask run
 ```
 La aplicación estará disponible en `http://127.0.0.1:5000`.
 
 **B. Modo de Producción (para Cloud Run):**
--   Asegúrate de que la cuenta de servicio de tu instancia de Cloud Run tenga el rol de **Editor de Cloud Datastore** (o un rol más restrictivo con los permisos necesarios para Firestore).
+-   Asegúrate de que la cuenta de servicio de tu instancia de Cloud Run tenga el rol de **Editor de Cloud Datastore**.
 -   Despliega la aplicación. Gunicorn se iniciará con el siguiente comando:
     ```bash
     gunicorn 'cotizador:create_app()' --bind 0.0.0.0:8080
@@ -89,21 +93,11 @@ La aplicación estará disponible en `http://127.0.0.1:5000`.
 
 ## Estructura del Proyecto
 
+(La estructura del proyecto permanece igual que en la versión anterior del README)
 ```
 .
 ├── cotizador/
-│   ├── __init__.py
-│   ├── db.py
-│   ├── api/
-│   ├── cotizaciones/
-│   ├── main/
-│   ├── servicios/
-│   ├── soportes/
-│   ├── static/
-│   └── templates/
+│   └── ...
 ├── run.py
-├── seed_data.py
-├── requirements.txt
-├── .env.example
-└── .gitignore
+└── ...
 ```

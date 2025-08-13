@@ -9,31 +9,31 @@ def get_db():
     """
     if 'db' not in g:
         try:
-            # The client uses the GOOGLE_APPLICATION_CREDENTIALS env var automatically
-            g.db = google.cloud.firestore.Client()
-            print("Firestore client initialized successfully for this context.")
+            # Explicitly pass the project ID from the environment variable.
+            # The library can often infer this, but being explicit is more robust.
+            project_id = os.getenv('GOOGLE_CLOUD_PROJECT')
+            if not project_id:
+                raise ValueError("GOOGLE_CLOUD_PROJECT environment variable not set.")
+
+            g.db = google.cloud.firestore.Client(project=project_id)
+            print(f"Firestore client initialized for project: {project_id}")
         except Exception as e:
             print(f"Error initializing Firestore client: {e}")
-            # Return None or handle the error as appropriate for your app
             g.db = None
     return g.db
 
 def close_db(e=None):
     """
-    Closes the database connection. This can be registered with the
-    application context to be called automatically on teardown.
+    Closes the database connection on application context teardown.
     """
     db = g.pop('db', None)
-    # Firestore client doesn't have an explicit close() method that's necessary
-    # for standard request/response cycles. The library manages connections.
-    # This function is here for pattern consistency.
+    # The Firestore client library manages connections automatically,
+    # so there's no explicit close() method to call.
     if db is not None:
-        # No explicit close needed.
         pass
 
 def init_app(app):
     """
-    Registers database functions with the Flask app. This is called from
-    the application factory.
+    Registers database functions with the Flask app.
     """
     app.teardown_appcontext(close_db)

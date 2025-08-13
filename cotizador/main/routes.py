@@ -16,8 +16,6 @@ def login():
         else:
             flash('Por favor, introduce un nombre de usuario.', 'warning')
 
-    # For a GET request, we will render a template.
-    # The template will be created in a later step.
     return render_template('login.html')
 
 @bp.route('/profile')
@@ -27,7 +25,6 @@ def profile():
         flash('Debes iniciar sesión para ver esta página.', 'info')
         return redirect(url_for('main.login'))
 
-    # The template will be created in a later step.
     return render_template('profile.html')
 
 @bp.route('/logout')
@@ -40,5 +37,4 @@ def logout():
 @bp.route('/')
 def index_page():
     """Renders the main welcome page of the application."""
-    # The 'index' endpoint is set in create_app to point here.
     return render_template('index.html')

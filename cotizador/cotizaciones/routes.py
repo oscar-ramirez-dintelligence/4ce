@@ -2,8 +2,6 @@ from flask import render_template, request, redirect, url_for, flash
 from . import bp
 from cotizador.services import cotizacion_service, soporte_service, tipos_cliente_service
 
-# Note: The routes in this file will be prefixed with `/cotizaciones`
-
 @bp.route('/')
 def list_page():
     """Renders the page that lists all existing quotations."""
@@ -17,7 +15,6 @@ def new_page():
     """
     if request.method == 'POST':
         try:
-            # Extract data from the form
             form_data = {
                 "titulo": request.form.get('titulo'),
                 "ejecutivo": request.form.get('ejecutivo'),
@@ -29,11 +26,10 @@ def new_page():
                 "periodo_inicio": request.form.get('periodo_inicio'),
                 "periodo_fin": request.form.get('periodo_fin'),
                 "soportes_seleccionados": request.form.getlist('soportes_seleccionados'),
-                "logo_cliente_ref": "", # Placeholder
-                "logo_agencia_ref": ""  # Placeholder
+                "logo_cliente_ref": "",
+                "logo_agencia_ref": ""
             }
 
-            # Call the service layer to create the document
             new_cotizacion = cotizacion_service.create_cotizacion(form_data)
 
             if new_cotizacion:
@@ -44,9 +40,7 @@ def new_page():
 
         except Exception as e:
             flash(f"Ocurrió un error al procesar el formulario: {e}", 'danger')
-            # Fall through to render the form again
 
-    # For a GET request, fetch all the data needed to populate the form's dynamic fields
     tipos_cliente = tipos_cliente_service.get_all_tipos_cliente()
     soportes = soporte_service.get_all_soportes()
 
