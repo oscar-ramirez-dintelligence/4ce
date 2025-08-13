@@ -2,24 +2,12 @@
 
 Una aplicación web construida con Flask y Google Cloud Firestore para gestionar soportes publicitarios, clientes y cotizaciones. Esta versión ha sido **refactorizada** para seguir las mejores prácticas de Flask, utilizando el patrón **Application Factory** y **Blueprints** para una estructura modular, escalable y mantenible.
 
-## Características Principales
+## Autenticación con Google Cloud
 
-- **Arquitectura Modular**: Código organizado en Blueprints (`main`, `soportes`, `cotizaciones`, `api`) y una capa de servicios.
-- **Gestión de Soportes**: Operaciones CRUD para soportes publicitarios.
-- **Catálogo Paginado**: Visualización de soportes con paginación del lado del servidor.
-- **Integración con Google Maps**: Visualización de la ubicación de los soportes en un mapa interactivo.
-- **Gestión de Cotizaciones**: Creación y visualización de cotizaciones para clientes.
-- **Sesiones Seguras**: Uso de cookies firmadas por el servidor para la gestión de sesiones.
-- **Script de Seeding**: Incluye un script para poblar la base de datos con datos de prueba.
+Esta aplicación utiliza **Application Default Credentials (ADC)** para autenticarse con los servicios de Google Cloud (Firestore). Esto significa que **no es necesario** gestionar archivos de clave de cuenta de servicio (`.json`) manualmente. La autenticación se maneja automáticamente según el entorno:
 
-## Arquitectura
-
-- **Framework Backend**: Flask (con patrón Application Factory y Blueprints)
-- **Capa de Lógica de Negocio**: Servicios (`cotizador/services/`)
-- **Base de Datos**: Google Cloud Firestore (NoSQL)
-- **Framework Frontend**: Bootstrap 5
-- **Renderizado de Plantillas**: Jinja2
-- **Servidor de Producción**: Gunicorn
+-   **En Desarrollo Local**: La aplicación usará las credenciales de tu usuario de `gcloud`.
+-   **En Cloud Run**: La aplicación usará la cuenta de servicio asociada a la instancia de Cloud Run.
 
 ---
 
@@ -27,44 +15,57 @@ Una aplicación web construida con Flask y Google Cloud Firestore para gestionar
 
 ### 1. Prerrequisitos
 
-- Python 3.13 o superior.
-- `pip` y `venv`.
-- Una cuenta de Google Cloud con un proyecto activo y las APIs (`Firestore`, `Maps JavaScript`) habilitadas.
+-   Python 3.13 o superior.
+-   `pip` y `venv`.
+-   [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) instalado y configurado en tu máquina local.
+-   Una cuenta de Google Cloud con un proyecto activo.
 
-### 2. Configuración de Credenciales
+### 2. Configuración del Proyecto en Google Cloud
 
-1.  **Clave de API de Google Maps**: Créala en la consola de Google Cloud y guárdala.
-2.  **Cuenta de Servicio para Firestore**:
-    - Crea una cuenta de servicio con el rol **Editor de Cloud Datastore**.
-    - Descarga la clave en formato **JSON**.
-    - Renombra el archivo a `service-account-key.json` y colócalo en la raíz del proyecto.
+1.  **Habilitar APIs**: En la consola de Google Cloud, asegúrate de que las siguientes APIs están habilitadas para tu proyecto:
+    -   **Cloud Firestore API**
+    -   **Maps JavaScript API**
+
+2.  **Crear una Clave de API de Google Maps**:
+    -   Ve a "APIs y Servicios" > "Credenciales".
+    -   Haz clic en "Crear credenciales" > "Clave de API".
+    -   Copia esta clave. La necesitarás para el archivo `.env`.
 
 ### 3. Configuración del Entorno Local
 
-1.  **Clonar el Repositorio** y navegar al directorio.
+1.  **Autenticación Local con `gcloud`**:
+    -   Asegúrate de haber iniciado sesión en gcloud: `gcloud auth login`.
+    -   Configura las credenciales por defecto de la aplicación:
+        ```bash
+        gcloud auth application-default login
+        ```
 
-2.  **Crear y Activar un Entorno Virtual**:
+2.  **Clonar el Repositorio** y navegar al directorio.
+
+3.  **Crear y Activar un Entorno Virtual**:
     ```bash
     python3 -m venv venv && source venv/bin/activate
     ```
 
-3.  **Instalar Dependencias**:
+4.  **Instalar Dependencias**:
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Configurar Variables de Entorno**:
-    - Crea una copia de `.env.example` y renómbrala a `.env`.
-    - Rellena las variables con tus claves y credenciales:
-      ```ini
-      SECRET_KEY="tu_clave_secreta_aqui"
-      GOOGLE_APPLICATION_CREDENTIALS="./service-account-key.json"
-      GOOGLE_MAPS_API_KEY="tu_google_maps_api_key_aqui"
-      ```
+5.  **Configurar Variables de Entorno**:
+    -   Crea una copia de `.env.example` y renómbrala a `.env`.
+    -   Rellena las variables:
+        ```ini
+        # Genera una clave segura con: python -c 'import secrets; print(secrets.token_hex(24))'
+        SECRET_KEY="tu_clave_secreta_aqui"
+
+        # La clave de API de Google Maps que creaste.
+        GOOGLE_MAPS_API_KEY="tu_google_maps_api_key_aqui"
+        ```
 
 ### 4. Poblar la Base de Datos (Seeding)
 
-Ejecuta el script de seeding dentro del contexto de la aplicación para poblar Firestore:
+Ejecuta el script de seeding para poblar Firestore con datos de prueba:
 ```bash
 python seed_data.py
 ```
@@ -72,51 +73,36 @@ python seed_data.py
 ### 5. Ejecutar la Aplicación
 
 **A. Modo de Desarrollo:**
-El `run.py` está configurado para usar las variables de entorno y ejecutar la app en modo de depuración.
 ```bash
-# Simplemente ejecuta el script
-python run.py
-
-# O usando el CLI de Flask
 flask --app run.py run
 ```
-La aplicación estará disponible en `http://127.0.0.1:5000` por defecto.
+La aplicación estará disponible en `http://127.0.0.1:5000`.
 
 **B. Modo de Producción (para Cloud Run):**
-Usa Gunicorn para apuntar a la application factory.
-```bash
-gunicorn 'cotizador:create_app()' --bind 0.0.0.0:8080
-```
+-   Asegúrate de que la cuenta de servicio de tu instancia de Cloud Run tenga el rol de **Editor de Cloud Datastore** (o un rol más restrictivo con los permisos necesarios para Firestore).
+-   Despliega la aplicación. Gunicorn se iniciará con el siguiente comando:
+    ```bash
+    gunicorn 'cotizador:create_app()' --bind 0.0.0.0:8080
+    ```
 
 ---
 
-## Estructura del Proyecto Refactorizado
+## Estructura del Proyecto
 
 ```
 .
-├── cotizador/                # Paquete principal de la aplicación
-│   ├── __init__.py           # Application Factory (create_app)
-│   ├── db.py                 # Lógica de conexión a la base de datos
-│   ├── api/                  # Blueprint para la API RESTful
-│   │   └── routes.py
-│   ├── cotizaciones/         # Blueprint para las rutas de cotizaciones
-│   │   └── routes.py
-│   ├── main/                 # Blueprint para rutas principales (home, login)
-│   │   └── routes.py
-│   ├── servicios/            # Lógica de negocio
-│   │   ├── cotizacion_service.py
-│   │   ├── soporte_service.py
-│   │   └── tipos_cliente_service.py
-│   ├── soportes/             # Blueprint para las rutas de soportes
-│   │   └── routes.py
-│   ├── static/               # Archivos estáticos (CSS, JS)
-│   │   └── css/
-│   │       └── style.css
-│   └── templates/            # Plantillas Jinja2
-│       ├── base.html
-│       └── ...
-├── run.py                    # Punto de entrada para ejecutar la aplicación
-├── seed_data.py              # Script para poblar la base de datos
+├── cotizador/
+│   ├── __init__.py
+│   ├── db.py
+│   ├── api/
+│   ├── cotizaciones/
+│   ├── main/
+│   ├── servicios/
+│   ├── soportes/
+│   ├── static/
+│   └── templates/
+├── run.py
+├── seed_data.py
 ├── requirements.txt
 ├── .env.example
 └── .gitignore
