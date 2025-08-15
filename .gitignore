@@ -16,5 +16,6 @@ instance/
 .idea/
 .vscode/
 
-# Google Cloud
+# Google Cloud & Firebase
 service-account-key.json
+firebase-admin-sdk-key.json

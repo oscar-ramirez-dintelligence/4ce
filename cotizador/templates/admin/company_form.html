@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración de la Empresa{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Configuración de la Empresa</h1>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form action="{{ url_for('admin.company_config') }}" method="POST">
+            <h5 class="card-title mb-3">Información General</h5>
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label for="nombre_empresa" class="form-label">Nombre de la Empresa</label>
+                    <input type="text" class="form-control" id="nombre_empresa" name="nombre_empresa" value="{{ config.get('nombre_empresa', '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="idioma" class="form-label">Idioma</label>
+                    <select class="form-select" id="idioma" name="idioma">
+                        <option value="es" {% if config.get('idioma') == 'es' %}selected{% endif %}>Español</option>
+                        <option value="en" {% if config.get('idioma') == 'en' %}selected{% endif %}>Inglés</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="opciones_inventario" name="opciones_inventario" {% if config.get('opciones_inventario') %}checked{% endif %}>
+                <label class="form-check-label" for="opciones_inventario">Compartir inventario</label>
+            </div>
+
+            <h5 class="card-title mt-4 mb-3">Datos de Contacto</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="direccion" class="form-label">Dirección</label>
+                    <input type="text" class="form-control" id="direccion" name="direccion" value="{{ config.get('direccion', '') }}">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="telefono" class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" id="telefono" name="telefono" value="{{ config.get('telefono', '') }}">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="correo_electronico" class="form-label">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="correo_electronico" name="correo_electronico" value="{{ config.get('correo_electronico', '') }}">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción de la Empresa</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="4">{{ config.get('descripcion', '') }}</textarea>
+            </div>
+
+            <hr class="my-4">
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -3,46 +3,53 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Cotizador de Medios{% endblock %} - CotizadorPro</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Custom App CSS -->
+    <title>{% block title %}Panel{% endblock %} - CotizadorPro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head_scripts %}{% endblock %}
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="{{ url_for('main.index_page') }}">CotizadorPro</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <a class="navbar-brand" href="{{ url_for('main.index_page') }}">CotizadorPro</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('soportes.catalogue') }}">Catálogo de Soportes</a>
+        {% if 'user_id' in session %}
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index_page') }}">Inicio</a></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">MENÚ</a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item disabled" href="#">Soportes</a></li>
+                <li><a class="dropdown-item disabled" href="#">Cotizaciones</a></li>
+                <li><a class="dropdown-item disabled" href="#">Agencias</a></li>
+              </ul>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('cotizaciones.list_page') }}">Ver Cotizaciones</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('cotizaciones.new_page') }}">Nueva Cotización</a>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">ADMIN</a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('admin.list_users') }}">Usuarios</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.company_config') }}">Empresa</a></li>
+              </ul>
             </li>
           </ul>
+        {% endif %}
           <ul class="navbar-nav ms-auto">
-             {% if 'username' in session %}
+             {% if 'user_id' in session %}
                 <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Bienvenido, {{ session.username }}
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i> {{ session.email }}
                   </a>
-                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
-                    <li><a class="dropdown-item" href="{{ url_for('main.profile') }}">Mi Perfil</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{{ url_for('main.logout') }}">Cerrar Sesión</a></li>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Cerrar Sesión</a></li>
                   </ul>
                 </li>
              {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.login') }}">Iniciar Sesión</a>
+                    <a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar Sesión</a>
                 </li>
              {% endif %}
           </ul>
@@ -50,30 +57,27 @@
       </div>
     </nav>
 
+    <form id="logout-form" action="{{ url_for('auth.logout') }}" method="POST" style="display: none;"></form>
+
     <main class="container mt-4">
-      {# Block to display flashed messages #}
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
             <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
               {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
           {% endfor %}
         {% endif %}
       {% endwith %}
-
       {% block content %}{% endblock %}
     </main>
 
     <footer class="container mt-5 py-3 my-4 text-center text-muted border-top">
-        &copy; 2024 CotizadorPro. Todos los derechos reservados.
+        &copy; 2024 CotizadorPro
     </footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
-    {# A block for page-specific JavaScript files or inline scripts #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block scripts %}{% endblock %}
   </body>
 </html>

@@ -1,40 +1,14 @@
-from flask import render_template, request, session, redirect, url_for, flash
+from flask import render_template, session, redirect, url_for
 from . import bp
-
-@bp.route('/login', methods=['GET', 'POST'])
-def login():
-    """Handles the user login, setting a value in the session cookie."""
-    # Clear any existing session
-    session.clear()
-
-    if request.method == 'POST':
-        username = request.form.get('username')
-        if username:
-            session['username'] = username
-            flash(f'¡Sesión iniciada como {username}!', 'success')
-            return redirect(url_for('main.profile'))
-        else:
-            flash('Por favor, introduce un nombre de usuario.', 'warning')
-
-    return render_template('login.html')
-
-@bp.route('/profile')
-def profile():
-    """Displays a profile page if the user is in the session."""
-    if 'username' not in session:
-        flash('Debes iniciar sesión para ver esta página.', 'info')
-        return redirect(url_for('main.login'))
-
-    return render_template('profile.html')
-
-@bp.route('/logout')
-def logout():
-    """Logs the user out by clearing the session."""
-    session.pop('username', None)
-    flash('Has cerrado la sesión exitosamente.', 'info')
-    return redirect(url_for('main.index_page'))
 
 @bp.route('/')
 def index_page():
-    """Renders the main welcome page of the application."""
-    return render_template('index.html')
+    """
+    Renders the main dashboard for logged-in users.
+    If the user is not logged in, it redirects them to the login page.
+    """
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+
+    # For now, it's a simple welcome. This can be expanded with real data.
+    return render_template('main/dashboard.html')
