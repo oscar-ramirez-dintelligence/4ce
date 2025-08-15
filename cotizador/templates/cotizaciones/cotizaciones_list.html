@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Cotizaciones{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Cotizaciones</h1>
+    <a href="{{ url_for('cotizaciones.new_page') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nueva Cotización
+    </a>
+</div>
+
+<!-- Advanced Filters -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        Filtros de Búsqueda Avanzada
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('cotizaciones.list_page') }}" method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label for="estado" class="form-label">Estado</label>
+                <select class="form-select" id="estado" name="estado">
+                    <option value="">Todos</option>
+                    <option value="Activa" {% if filters.get('estado') == 'Activa' %}selected{% endif %}>Activa</option>
+                    <option value="Cerrada" {% if filters.get('estado') == 'Cerrada' %}selected{% endif %}>Cerrada</option>
+                    <option value="Pendiente" {% if filters.get('estado') == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="anunciante" class="form-label">Anunciante</label>
+                <input type="text" class="form-control" id="anunciante" name="anunciante" value="{{ filters.get('anunciante', '') }}">
+            </div>
+            <div class="col-md-3">
+                <label for="agencia" class="form-label">Agencia</label>
+                <input type="text" class="form-control" id="agencia" name="agencia" value="{{ filters.get('agencia', '') }}">
+            </div>
+            <div class="col-md-3">
+                <label for="ejecutivo" class="form-label">Ejecutivo/a</label>
+                <input type="text" class="form-control" id="ejecutivo" name="ejecutivo" value="{{ filters.get('ejecutivo', '') }}">
+            </div>
+            <div class="col-12 text-end">
+                <a href="{{ url_for('cotizaciones.list_page') }}" class="btn btn-secondary">Limpiar Filtros</a>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results Table -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Título</th>
+                        <th>Anunciante</th>
+                        <th>Agencia</th>
+                        <th>Ejecutivo/a</th>
+                        <th>Estado</th>
+                        <th>Última Actualización</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cotizacion in cotizaciones %}
+                    <tr>
+                        <td class="fw-medium">{{ cotizacion.titulo }}</td>
+                        <td>{{ cotizacion.anunciante }}</td>
+                        <td>{{ cotizacion.agencia or 'N/A' }}</td>
+                        <td>{{ cotizacion.ejecutivo }}</td>
+                        <td><span class="badge bg-info">{{ cotizacion.estado }}</span></td>
+                        <td>{{ cotizacion.ultima_actualizacion.strftime('%Y-%m-%d') if cotizacion.ultima_actualizacion else 'N/A' }}</td>
+                        <td>
+                            <a href="{{ url_for('cotizaciones.edit_page', cotizacion_id=cotizacion.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">No se encontraron cotizaciones con los filtros aplicados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
