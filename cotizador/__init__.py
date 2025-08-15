@@ -21,8 +21,9 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import firebase
-    firebase.init_app(app)
+    # Initialize Firestore
+    from . import db
+    db.init_app(app)
 
     # Register Blueprints
     from . import auth, admin, main, soportes, cotizaciones, agencias, dashboard, reportes, reservas, campanas

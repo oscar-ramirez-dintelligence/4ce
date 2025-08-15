@@ -1,44 +1,60 @@
-import os
-import json
-from flask import render_template, request, redirect, url_for, flash, session, jsonify
+from flask import render_template, request, redirect, url_for, flash, session
 from . import bp
-from cotizador.firebase import get_auth
+from cotizador.services import user_service
 
-@bp.route('/login', methods=['GET'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
-    """Renders the login page with the necessary Firebase config."""
-    try:
-        firebase_config_json = os.getenv('FIREBASE_WEB_CONFIG_JSON', '{}')
-        firebase_config = json.loads(firebase_config_json)
-    except json.JSONDecodeError:
-        flash("La configuración de Firebase para la web no es un JSON válido.", "danger")
-        firebase_config = {}
+    """Handles user login."""
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
 
-    return render_template('auth/login.html', firebase_config=firebase_config)
+        if not email or not password:
+            flash('Email y contraseña son obligatorios.', 'warning')
+            return redirect(url_for('auth.login'))
+
+        user = user_service.check_credentials(email, password)
+
+        if user:
+            session.clear()
+            session['user_id'] = user['uid']
+            session['user_name'] = user['nombre_completo']
+            session['user_email'] = user['email']
+            session['user_role'] = user['rol']
+            flash(f'Bienvenido de nuevo, {user["nombre_completo"]}!', 'success')
+            return redirect(url_for('dashboard.main_dashboard'))
+        else:
+            flash('Credenciales inválidas. Por favor, inténtalo de nuevo.', 'danger')
+
+    return render_template('auth/login.html')
 
 @bp.route('/logout', methods=['POST'])
 def logout():
-    """Logs the user out by clearing the session cookie."""
+    """Logs the user out by clearing the session."""
     session.clear()
-    return redirect(url_for('main.index_page'))
+    flash('Has cerrado la sesión exitosamente.', 'info')
+    return redirect(url_for('auth.login'))
 
-@bp.route('/session-login', methods=['POST'])
-def session_login():
-    """
-    Verifies a Firebase ID token sent from the client and creates a server-side session.
-    """
-    try:
-        id_token = request.json.get('idToken')
-        if not id_token:
-            return jsonify({"error": "No ID token provided."}), 400
+@bp.route('/register', methods=['GET', 'POST'])
+def register():
+    """Handles new user registration."""
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        full_name = request.form.get('nombre_completo')
 
-        decoded_token = get_auth().verify_id_token(id_token)
-        uid = decoded_token['uid']
+        if not all([email, password, full_name]):
+            flash('Todos los campos son obligatorios.', 'danger')
+            return redirect(url_for('auth.register'))
 
-        session['user_id'] = uid
-        session['email'] = decoded_token.get('email')
+        try:
+            # All self-registered users get the default role 'ejecutivo'
+            user_service.create_user(email, password, full_name, role='ejecutivo')
+            flash('¡Cuenta creada exitosamente! Por favor, inicia sesión.', 'success')
+            return redirect(url_for('auth.login'))
+        except ValueError as e:
+            flash(str(e), 'danger') # Show error if user already exists
+        except Exception as e:
+            flash(f'Ocurrió un error inesperado: {e}', 'danger')
 
-        return jsonify({"status": "success"}), 200
-
-    except Exception as e:
-        return jsonify({"error": f"Invalid token or error during session creation: {e}"}), 401
+    return render_template('auth/register.html')

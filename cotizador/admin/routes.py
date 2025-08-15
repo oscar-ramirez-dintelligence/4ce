@@ -21,21 +21,20 @@ def create_user():
             flash('Todos los campos son obligatorios.', 'danger')
         else:
             try:
-                new_user = user_service.create_user(
+                user_service.create_user(
                     email=email,
                     password=password,
                     full_name=full_name,
                     role=role
                 )
-                if new_user:
-                    flash(f"Usuario '{full_name}' creado exitosamente.", 'success')
-                    return redirect(url_for('admin.list_users'))
-                else:
-                    flash('Ocurrió un error al crear el usuario.', 'danger')
+                flash(f"Usuario '{full_name}' creado exitosamente.", 'success')
+                return redirect(url_for('admin.list_users'))
+            except ValueError as e:
+                flash(str(e), 'danger') # Handle case where user already exists
             except Exception as e:
-                flash(f"Error: {e}", 'danger')
+                flash(f"Ocurrió un error al crear el usuario: {e}", 'danger')
 
-    return render_template('admin/user_form.html')
+    return render_template('admin/user_form.html', user={})
 
 @bp.route('/company', methods=['GET', 'POST'])
 def company_config():
@@ -44,8 +43,6 @@ def company_config():
     """
     if request.method == 'POST':
         try:
-            # In a real app, you would handle file uploads for logos separately.
-            # Here we just save the text data.
             form_data = {
                 "nombre_empresa": request.form.get('nombre_empresa'),
                 "idioma": request.form.get('idioma'),

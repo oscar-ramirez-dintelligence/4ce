@@ -1,28 +1,33 @@
 {% extends "base.html" %}
 
-{% block title %}Crear Usuario{% endblock %}
+{% set is_edit = user.uid is defined %}
+{% set form_title = "Editar Usuario" if is_edit else "Crear Nuevo Usuario" %}
+{# The form action will need to be updated when edit functionality is added #}
+{% set form_action = url_for('admin.create_user') %}
+
+{% block title %}{{ form_title }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="mb-0">Crear Nuevo Usuario</h1>
+    <h1 class="mb-0">{{ form_title }}</h1>
     <a href="{{ url_for('admin.list_users') }}" class="btn btn-sm btn-outline-secondary">Volver a la lista</a>
 </div>
 
 <div class="card shadow-sm">
     <div class="card-body p-4">
-        <form action="{{ url_for('admin.create_user') }}" method="POST">
+        <form action="{{ form_action }}" method="POST">
             <h5 class="card-title mb-3">Información General</h5>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="nombre_completo" class="form-label">Nombre Completo</label>
-                    <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" required>
+                    <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" value="{{ user.get('nombre_completo', '') }}" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="rol" class="form-label">Perfil / Rol</label>
                     <select class="form-select" id="rol" name="rol" required>
-                        <option selected disabled value="">Seleccione un rol...</option>
-                        <option value="ejecutivo">Ejecutivo/a de Ventas</option>
-                        <option value="administrador">Administrador/a de Empresa</option>
+                        <option value="" {% if not user.rol %}selected{% endif %} disabled>Seleccione un rol...</option>
+                        <option value="ejecutivo" {% if user.rol == 'ejecutivo' %}selected{% endif %}>Ejecutivo/a de Ventas</option>
+                        <option value="administrador" {% if user.rol == 'administrador' %}selected{% endif %}>Administrador/a de Empresa</option>
                     </select>
                 </div>
             </div>
@@ -31,18 +36,18 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="email" class="form-label">Correo Electrónico</label>
-                    <input type="email" class="form-control" id="email" name="email" required>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ user.get('email', '') }}" required {% if is_edit %}disabled{% endif %}>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
+                    <input type="password" class="form-control" id="password" name="password" {% if not is_edit %}required{% endif %} placeholder="{{ 'Dejar en blanco para no cambiar' if is_edit else '' }}">
                 </div>
             </div>
 
             <hr class="my-4">
             <div class="d-flex justify-content-end">
                 <a href="{{ url_for('admin.list_users') }}" class="btn btn-secondary me-2">Cancelar</a>
-                <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                <button type="submit" class="btn btn-primary">Guardar Usuario</button>
             </div>
         </form>
     </div>

@@ -1,46 +1,60 @@
 import datetime
-from cotizador.firebase import get_db, get_auth
+import uuid
+from cotizador.db import get_db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def create_user(email, password, full_name, role):
     """
-    Creates a new user in Firebase Authentication and stores their profile
-    in the 'usuarios' collection in Firestore.
+    Creates a new user with a hashed password in the 'usuarios' collection.
     """
-    auth = get_auth()
     db = get_db()
 
-    try:
-        # Step 1: Create the user in Firebase Authentication
-        user_record = auth.create_user(
-            email=email,
-            password=password,
-            display_name=full_name,
-            email_verified=False # Or True, depending on your flow
-        )
+    # Check if user already exists
+    existing_user = get_user_by_email(email)
+    if existing_user:
+        raise ValueError(f"User with email {email} already exists.")
 
-        print(f"Successfully created new auth user: {user_record.uid}")
+    user_data = {
+        'uid': str(uuid.uuid4()),
+        'nombre_completo': full_name,
+        'email': email,
+        'password_hash': generate_password_hash(password),
+        'rol': role,
+        'fecha_creacion': datetime.datetime.now(datetime.timezone.utc),
+        'fecha_ultimo_ingreso': None
+    }
 
-        # Step 2: Create the user profile document in Firestore
-        user_data = {
-            'uid': user_record.uid,
-            'nombre_completo': full_name,
-            'email': email,
-            'rol': role,
-            'fecha_creacion': datetime.datetime.now(datetime.timezone.utc),
-            'fecha_ultimo_ingreso': None
-        }
+    db.collection('usuarios').document(user_data['uid']).set(user_data)
+    return user_data
 
-        db.collection('usuarios').document(user_record.uid).set(user_data)
-        print(f"Successfully created user profile in Firestore for {user_record.uid}")
+def check_credentials(email, password):
+    """
+    Verifies a user's credentials. Returns the user dict if valid, otherwise None.
+    """
+    user = get_user_by_email(email)
+    if user and check_password_hash(user['password_hash'], password):
+        # Update last login timestamp
+        db = get_db()
+        db.collection('usuarios').document(user['uid']).update({
+            'fecha_ultimo_ingreso': datetime.datetime.now(datetime.timezone.utc)
+        })
+        return user
+    return None
 
-        return user_data
-
-    except Exception as e:
-        # In a production app, you'd want more robust error handling,
-        # potentially including a compensating transaction to delete the
-        # auth user if the Firestore write fails.
-        print(f"An error occurred during user creation: {e}")
+def get_user_by_email(email):
+    """
+    Retrieves a single user profile from Firestore by their email address.
+    """
+    db = get_db()
+    if not db:
         return None
+
+    users_ref = db.collection('usuarios').where('email', '==', email).limit(1)
+    docs = list(users_ref.stream())
+
+    if docs:
+        return docs[0].to_dict()
+    return None
 
 def get_all_users():
     """
@@ -48,15 +62,10 @@ def get_all_users():
     """
     db = get_db()
     if not db:
-        print("Error: Database connection not available.")
         return []
 
-    try:
-        users_ref = db.collection('usuarios').order_by('nombre_completo').stream()
-        return [user.to_dict() for user in users_ref]
-    except Exception as e:
-        print(f"An error occurred while fetching all users: {e}")
-        return []
+    users_ref = db.collection('usuarios').order_by('nombre_completo').stream()
+    return [user.to_dict() for user in users_ref]
 
 def get_user_by_uid(uid):
     """
@@ -65,15 +74,7 @@ def get_user_by_uid(uid):
     db = get_db()
     if not db:
         return None
-    try:
-        doc_ref = db.collection('usuarios').document(uid)
-        user = doc_ref.get()
-        return user.to_dict() if user.exists else None
-    except Exception as e:
-        print(f"An error occurred while fetching user {uid}: {e}")
-        return None
 
-# Note: For a full implementation, you would also add functions here for:
-# - update_user(uid, data): Updates a user's profile in Firestore and Firebase Auth.
-# - delete_user(uid): Deletes a user from Firebase Auth and their profile from Firestore.
-# - get_user_by_email(email): Retrieves a user by their email address.
+    doc_ref = db.collection('usuarios').document(uid)
+    user = doc_ref.get()
+    return user.to_dict() if user.exists else None
