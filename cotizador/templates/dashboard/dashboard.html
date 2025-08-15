@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard de Ventas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Dashboard de Ventas</h1>
+    <!-- Placeholder for filters -->
+    <div>
+        <select class="form-select-sm">
+            <option selected>Todos los ejecutivos</option>
+        </select>
+        <input type="date" class="form-control-sm">
+    </div>
+</div>
+
+<!-- Main Metrics -->
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">Cotizaciones activas</h6>
+                <h2 class="card-title">{{ metrics.active_quotes_count }}</h2>
+                <p class="card-text">${{ "{:,.2f}".format(metrics.active_quotes_amount) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">Campañas exhibidas</h6>
+                <h2 class="card-title">${{ "{:,.0f}".format(metrics.campaigns_exhibited_amount) }}K</h2>
+                <p class="card-text text-success">0% cumplimiento</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">Campañas notificadas</h6>
+                <h2 class="card-title">${{ "{:,.0f}".format(metrics.campaigns_notified_amount) }}K</h2>
+                <p class="card-text text-warning">0% cumplimiento</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">Ocupación</h6>
+                <h2 class="card-title">{{ "%.1f"|format(metrics.occupation_percentage) }}%</h2>
+                <p class="card-text text-info">Soportes disponibles</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">Próximos Meses</div>
+            <div class="card-body">
+                <canvas id="monthlySalesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">Reservas Activas</div>
+            <div class="card-body">
+                <canvas id="activeReservationsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Data passed from the backend
+    const monthlySalesLabels = {{ monthly_sales_labels|tojson }};
+    const monthlySalesData = {{ monthly_sales_data|tojson }};
+    const activeReservationsLabels = {{ active_reservations_labels|tojson }};
+    const activeReservationsData = {{ active_reservations_data|tojson }};
+
+    // Chart 1: Monthly Sales
+    const ctxSales = document.getElementById('monthlySalesChart').getContext('2d');
+    new Chart(ctxSales, {
+        type: 'bar',
+        data: {
+            labels: monthlySalesLabels,
+            datasets: [{
+                label: 'Campañas Exhibidas por Mes',
+                data: monthlySalesData,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Chart 2: Active Reservations
+    const ctxReservations = document.getElementById('activeReservationsChart').getContext('2d');
+    new Chart(ctxReservations, {
+        type: 'bar',
+        data: {
+            labels: activeReservationsLabels,
+            datasets: [{
+                label: 'Reservas por Mes',
+                data: activeReservationsData,
+                backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                borderColor: 'rgba(255, 159, 64, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
+{% endblock %}

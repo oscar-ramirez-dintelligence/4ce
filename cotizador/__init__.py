@@ -43,6 +43,11 @@ def create_app(test_config=None):
     from . import agencias
     app.register_blueprint(agencias.bp)
 
+    from . import dashboard
+    app.register_blueprint(dashboard.bp)
+
+    # The main dashboard is now at /dashboard, but we can keep the root
+    # pointing to the simple main page for now. The nav bar will point to the dashboard.
     app.add_url_rule('/', endpoint='index')
 
     return app
