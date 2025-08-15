@@ -8,7 +8,6 @@ def create_app(test_config=None):
     """
     app = Flask(__name__, instance_relative_config=True)
 
-    # Load default configuration
     app.config.from_mapping(
         SECRET_KEY=os.getenv('SECRET_KEY', 'dev-secret-key'),
     )
@@ -23,11 +22,9 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # --- Initialize Firebase Admin SDK and Firestore ---
     from . import firebase
     firebase.init_app(app)
 
-    # --- Register Blueprints ---
     from . import auth
     app.register_blueprint(auth.bp)
 
@@ -36,5 +33,10 @@ def create_app(test_config=None):
 
     from . import main
     app.register_blueprint(main.bp)
+
+    from . import soportes
+    app.register_blueprint(soportes.bp)
+
+    app.add_url_rule('/', endpoint='index')
 
     return app

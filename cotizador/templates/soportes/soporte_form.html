@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% set is_edit = soporte.id is defined %}
+{% set form_title = "Editar Soporte" if is_edit else "Crear Nuevo Soporte" %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">{{ form_title }}</h1>
+    <a href="{{ url_for('soportes.catalogue') }}" class="btn btn-sm btn-outline-secondary">Volver al Catálogo</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form action="{{ url_for('soportes.edit_soporte', soporte_id=soporte.id) if is_edit else url_for('soportes.new_soporte') }}" method="POST">
+
+            <h5 class="card-title mb-3">Información del Soporte</h5>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="codigo_soporte" class="form-label">Código del Soporte</label>
+                    <input type="text" class="form-control" id="codigo_soporte" name="codigo_soporte" value="{{ soporte.get('codigo_soporte', '') }}" required>
+                </div>
+                <div class="col-md-8 mb-3">
+                    <label for="nombre_soporte" class="form-label">Nombre / Descripción</label>
+                    <input type="text" class="form-control" id="nombre_soporte" name="nombre_soporte" value="{{ soporte.get('nombre_soporte', '') }}" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="tipo_soporte" class="form-label">Tipo de Soporte</label>
+                    <input type="text" class="form-control" id="tipo_soporte" name="tipo_soporte" value="{{ soporte.get('tipo_soporte', '') }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="municipio" class="form-label">Municipio</label>
+                    <input type="text" class="form-control" id="municipio" name="municipio" value="{{ soporte.get('municipio', '') }}" required>
+                </div>
+            </div>
+
+            <h5 class="card-title mt-4 mb-3">Precios</h5>
+            <div class="row">
+                 <div class="col-md-6 mb-3">
+                    <label for="precio_minimo" class="form-label">Precio Mínimo</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_minimo" name="precio_minimo" value="{{ soporte.get('precio_minimo', '') }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="precio_mensual" class="form-label">Precio Mensual</label>
+                    <input type="number" step="0.01" class="form-control" id="precio_mensual" name="precio_mensual" value="{{ soporte.get('precio_mensual', '') }}" required>
+                </div>
+            </div>
+
+            <h5 class="card-title mt-4 mb-3">Geolocalización</h5>
+            <div class="row">
+                 <div class="col-md-4 mb-3">
+                    <label for="latitud" class="form-label">Latitud</label>
+                    <input type="number" step="any" class="form-control" id="latitud" name="latitud" value="{{ soporte.get('latitud', '') }}" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="longitud" class="form-label">Longitud</label>
+                    <input type="number" step="any" class="form-control" id="longitud" name="longitud" value="{{ soporte.get('longitud', '') }}" required>
+                </div>
+                 <div class="col-md-4 mb-3">
+                    <label for="place_id" class="form-label">Google Place ID (Opcional)</label>
+                    <input type="text" class="form-control" id="place_id" name="place_id" value="{{ soporte.get('place_id', '') }}">
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('soportes.catalogue') }}" class="btn btn-secondary me-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Guardar Soporte</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

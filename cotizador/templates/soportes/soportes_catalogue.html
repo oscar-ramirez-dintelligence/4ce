@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Catálogo de Soportes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Catálogo de Soportes</h1>
+    <a href="{{ url_for('soportes.new_soporte') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nuevo Soporte
+    </a>
+</div>
+
+<!-- Advanced Filters -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        Filtros de Búsqueda Avanzada
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('soportes.catalogue') }}" method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="codigo_soporte" class="form-label">Código</label>
+                <input type="text" class="form-control" id="codigo_soporte" name="codigo_soporte" value="{{ filters.get('codigo_soporte', '') }}">
+            </div>
+            <div class="col-md-4">
+                <label for="tipo_soporte" class="form-label">Tipo de Soporte</label>
+                <input type="text" class="form-control" id="tipo_soporte" name="tipo_soporte" value="{{ filters.get('tipo_soporte', '') }}">
+            </div>
+            <div class="col-md-4">
+                <label for="municipio" class="form-label">Municipio</label>
+                <input type="text" class="form-control" id="municipio" name="municipio" value="{{ filters.get('municipio', '') }}">
+            </div>
+            <div class="col-12 text-end">
+                <a href="{{ url_for('soportes.catalogue') }}" class="btn btn-secondary">Limpiar Filtros</a>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Map View -->
+<div id="map-container" class="mb-4 shadow-sm rounded" style="height: 450px; width: 100%;">
+    <div id="map" style="height: 100%; width: 100%;"></div>
+</div>
+
+<!-- Table View -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Tipo</th>
+                        <th>Nombre</th>
+                        <th>Precio Mínimo</th>
+                        <th>Precio Mensual</th>
+                        <th>Municipio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for soporte in soportes %}
+                    <tr>
+                        <td>{{ soporte.codigo_soporte }}</td>
+                        <td>{{ soporte.tipo_soporte }}</td>
+                        <td>{{ soporte.nombre_soporte }}</td>
+                        <td>${{ "%.2f"|format(soporte.precio_minimo) }}</td>
+                        <td>${{ "%.2f"|format(soporte.precio_mensual) }}</td>
+                        <td>{{ soporte.municipio }}</td>
+                        <td>
+                            <a href="{{ url_for('soportes.edit_soporte', soporte_id=soporte.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">No se encontraron soportes con los filtros aplicados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {% if not next_page_cursor_id %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('soportes.catalogue', start_at=next_page_cursor_id, **filters) }}">Siguiente</a>
+        </li>
+    </ul>
+</nav>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function initMap() {
+        // Map initialization logic as before...
+        const { Map } = await google.maps.importLibrary("maps");
+        const soportes = {{ soportes|tojson|safe }};
+        const mapCenter = { lat: 19.4326, lng: -99.1332 };
+        const map = new Map(document.getElementById("map"), { zoom: 5, center: mapCenter });
+
+        if (soportes.length > 0) {
+            const bounds = new google.maps.LatLngBounds();
+            soportes.forEach(soporte => {
+                const position = { lat: soporte.latitud, lng: soporte.longitud };
+                new google.maps.Marker({ map, position, title: soporte.nombre_soporte });
+                bounds.extend(position);
+            });
+            map.fitBounds(bounds);
+        }
+    }
+</script>
+{% if google_maps_api_key %}
+<script async src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap"></script>
+{% else %}
+<script>
+    document.getElementById('map-container').innerHTML = '<div class="alert alert-warning h-100 d-flex align-items-center justify-content-center">GOOGLE_MAPS_API_KEY no configurada.</div>';
+</script>
+{% endif %}
+{% endblock %}
