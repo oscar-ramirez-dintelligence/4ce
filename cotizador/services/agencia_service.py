@@ -1,4 +1,4 @@
-from cotizador.firebase import get_db
+from cotizador.db import get_db
 import uuid
 
 def get_all_agencias(filters=None):

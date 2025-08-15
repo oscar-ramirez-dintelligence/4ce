@@ -1,4 +1,4 @@
-from cotizador.firebase import get_db
+from cotizador.db import get_db
 from datetime import datetime
 
 def generate_report(report_type, start_date_str, end_date_str):

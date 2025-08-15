@@ -1,4 +1,4 @@
-from cotizador.firebase import get_db
+from cotizador.db import get_db
 
 # Use a fixed, known ID for the single company configuration document
 CONFIG_DOCUMENT_ID = "main_config"
