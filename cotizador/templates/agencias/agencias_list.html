@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Agencias{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Agencias de Publicidad</h1>
+    <a href="{{ url_for('agencias.new_page') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nueva Agencia
+    </a>
+</div>
+
+<!-- Advanced Filters -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        Filtros de Búsqueda Avanzada
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('agencias.list_page') }}" method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="nombre" class="form-label">Busqueda por Término</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" value="{{ filters.get('nombre', '') }}" placeholder="Nombre o Razón Social...">
+            </div>
+            <div class="col-md-4">
+                <label for="rfc" class="form-label">RFC</label>
+                <input type="text" class="form-control" id="rfc" name="rfc" value="{{ filters.get('rfc', '') }}">
+            </div>
+            <div class="col-md-4">
+                <label for="grupo" class="form-label">Grupo</label>
+                <input type="text" class="form-control" id="grupo" name="grupo" value="{{ filters.get('grupo', '') }}">
+            </div>
+            <div class="col-12 text-end">
+                <a href="{{ url_for('agencias.list_page') }}" class="btn btn-secondary">Limpiar Filtros</a>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results Table -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Razón Social</th>
+                        <th>RFC</th>
+                        <th>Grupo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agencia in agencias %}
+                    <tr>
+                        <td class="fw-medium">{{ agencia.nombre }}</td>
+                        <td>{{ agencia.razon_social }}</td>
+                        <td>{{ agencia.rfc }}</td>
+                        <td>{{ agencia.grupo }}</td>
+                        <td>
+                            <a href="{{ url_for('agencias.edit_page', agencia_id=agencia.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No se encontraron agencias con los filtros aplicados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

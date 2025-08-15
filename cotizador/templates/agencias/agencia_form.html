@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% set is_edit = agencia.id is defined %}
+{% set form_title = "Editar Agencia" if is_edit else "Crear Nueva Agencia" %}
+{% set form_action = url_for('agencias.edit_page', agencia_id=agencia.id) if is_edit else url_for('agencias.new_page') %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">{{ form_title }}</h1>
+    <a href="{{ url_for('agencias.list_page') }}" class="btn btn-sm btn-outline-secondary">Volver a la lista</a>
+</div>
+
+<form action="{{ form_action }}" method="POST">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">Información General</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre" value="{{ agencia.get('nombre', '') }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="razon_social" class="form-label">Razón Social</label>
+                    <input type="text" class="form-control" id="razon_social" name="razon_social" value="{{ agencia.get('razon_social', '') }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="rfc" class="form-label">RFC</label>
+                    <input type="text" class="form-control" id="rfc" name="rfc" value="{{ agencia.get('rfc', '') }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="giro" class="form-label">Giro</label>
+                    <input type="text" class="form-control" id="giro" name="giro" value="{{ agencia.get('giro', '') }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="direccion" class="form-label">Dirección</label>
+                    <input type="text" class="form-control" id="direccion" name="direccion" value="{{ agencia.get('direccion', '') }}">
+                </div>
+                 <div class="col-md-6 mb-3">
+                    <label for="grupo" class="form-label">Asignar a Grupo</label>
+                    <input type="text" class="form-control" id="grupo" name="grupo" value="{{ agencia.get('grupo', '') }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">Contactos</div>
+        <div class="card-body">
+            <h6 class="card-subtitle mb-2 text-muted">Contacto Financiero</h6>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="contacto_financiero_nombre" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="contacto_financiero_nombre" name="contacto_financiero_nombre" value="{{ agencia.get('contactos', {}).get('financiero', {}).get('nombre', '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="contacto_financiero_email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" id="contacto_financiero_email" name="contacto_financiero_email" value="{{ agencia.get('contactos', {}).get('financiero', {}).get('email', '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="contacto_financiero_telefono" class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" id="contacto_financiero_telefono" name="contacto_financiero_telefono" value="{{ agencia.get('contactos', {}).get('financiero', {}).get('telefono', '') }}">
+                </div>
+            </div>
+            <hr>
+            <h6 class="card-subtitle mb-2 text-muted">Contacto Comercial</h6>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="contacto_comercial_nombre" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="contacto_comercial_nombre" name="contacto_comercial_nombre" value="{{ agencia.get('contactos', {}).get('comercial', {}).get('nombre', '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="contacto_comercial_email" class="form-label">E-mail</label>
+                    <input type="email" class="form-control" id="contacto_comercial_email" name="contacto_comercial_email" value="{{ agencia.get('contactos', {}).get('comercial', {}).get('email', '') }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="contacto_comercial_telefono" class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" id="contacto_comercial_telefono" name="contacto_comercial_telefono" value="{{ agencia.get('contactos', {}).get('comercial', {}).get('telefono', '') }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end">
+        <a href="{{ url_for('agencias.list_page') }}" class="btn btn-secondary me-2">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Guardar Agencia</button>
+    </div>
+</form>
+{% endblock %}

@@ -40,6 +40,9 @@ def create_app(test_config=None):
     from . import cotizaciones
     app.register_blueprint(cotizaciones.bp)
 
+    from . import agencias
+    app.register_blueprint(agencias.bp)
+
     app.add_url_rule('/', endpoint='index')
 
     return app
