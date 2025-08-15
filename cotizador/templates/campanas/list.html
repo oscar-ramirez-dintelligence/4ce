@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Campañas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Campañas</h1>
+    <a href="{{ url_for('campanas.new_page') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nueva Campaña
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre de Campaña</th>
+                        <th>ID de Cotización</th>
+                        <th>Fecha de Inicio</th>
+                        <th>Fecha de Fin</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for campana in campanas %}
+                    <tr>
+                        <td>{{ campana.nombre_campana }}</td>
+                        <td>{{ campana.cotizacion_id }}</td>
+                        <td>{{ campana.fecha_inicio }}</td>
+                        <td>{{ campana.fecha_fin }}</td>
+                        <td>
+                            <a href="{{ url_for('campanas.edit_page', campana_id=campana.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No hay campañas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

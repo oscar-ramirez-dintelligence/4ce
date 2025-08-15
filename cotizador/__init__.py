@@ -3,8 +3,7 @@ from flask import Flask
 
 def create_app(test_config=None):
     """
-    The application factory. This function is responsible for creating and
-    configuring the Flask application instance.
+    The application factory.
     """
     app = Flask(__name__, instance_relative_config=True)
 
@@ -25,29 +24,18 @@ def create_app(test_config=None):
     from . import firebase
     firebase.init_app(app)
 
-    from . import auth
+    # Register Blueprints
+    from . import auth, admin, main, soportes, cotizaciones, agencias, dashboard, reportes, reservas, campanas
     app.register_blueprint(auth.bp)
-
-    from . import admin
     app.register_blueprint(admin.bp)
-
-    from . import main
     app.register_blueprint(main.bp)
-
-    from . import soportes
     app.register_blueprint(soportes.bp)
-
-    from . import cotizaciones
     app.register_blueprint(cotizaciones.bp)
-
-    from . import agencias
     app.register_blueprint(agencias.bp)
-
-    from . import dashboard
     app.register_blueprint(dashboard.bp)
-
-    from . import reportes
     app.register_blueprint(reportes.bp)
+    app.register_blueprint(reservas.bp)
+    app.register_blueprint(campanas.bp)
 
     app.add_url_rule('/', endpoint='index')
 

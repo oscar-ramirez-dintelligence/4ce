@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% set is_edit = reserva.id is defined %}
+{% set form_title = "Editar Reserva" if is_edit else "Crear Nueva Reserva" %}
+{% set form_action = url_for('reservas.edit_page', reserva_id=reserva.id) if is_edit else url_for('reservas.new_page') %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">{{ form_title }}</h1>
+    <a href="{{ url_for('reservas.list_page') }}" class="btn btn-sm btn-outline-secondary">Volver a la lista</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form action="{{ form_action }}" method="POST">
+            <div class="mb-3">
+                <label for="soporte_id" class="form-label">ID del Soporte</label>
+                <input type="text" class="form-control" id="soporte_id" name="soporte_id" value="{{ reserva.get('soporte_id', '') }}" required>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
+                    <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" value="{{ reserva.get('fecha_inicio', '') }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="fecha_fin" class="form-label">Fecha de Fin</label>
+                    <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" value="{{ reserva.get('fecha_fin', '') }}" required>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <div class="d-flex justify-content-end">
+                <a href="{{ url_for('reservas.list_page') }}" class="btn btn-secondary me-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Guardar Reserva</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
